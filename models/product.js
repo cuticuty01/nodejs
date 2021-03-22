@@ -16,6 +16,10 @@ const productSchema = mongoose.Schema(
     price: {
       type: Number,
     },
+    photo: {
+      data: Buffer,
+      contentType: String,
+    },
     shipping: {
       require: true,
       type: Boolean,

@@ -1,17 +1,60 @@
 import Product from "../models/product";
+import formidable from "formidable";
+import fs from "fs";
 
+
+//Thêm sản phẩm
 export const create = (req, res) => {
-  const product = new Product(req.body);
-  product.save((err, data) => {
+  let form = new formidable.IncomingForm();
+  form.keepExtensions = true;
+  form.parse(req, (err, fields, files) => {
     if (err) {
-      res.status(400).json({
-        error: "Add product failed",
-      });
-    } else {
-      res.json(data);
+      return res.status(400).json({
+        error: "Thêm sản phẩm không thành công"
+      })
     }
-  });
-};
+    const { name, description, price } = fields;
+    if (!name || !description || !price) {
+      return res.status(400).json({
+        error: "Bạn cần nhập đầy đủ thông tin"
+      })
+    }
+
+    let product = new Product(fields);
+    //1kb = 1000
+    //1mb = 100000
+    if (files.photo) {
+      if (files.photo.size > 100000) {
+        res.status(400).json({
+          error: "Bạn nên upload ảnh dưới 1mb"
+        })
+      }
+      product.photo.data = fs.readFileSync(files.photo.path);
+      product.photo.ContentType = files.photo.path;
+    }
+    product.save((err, data) => {
+      if (err) {
+        res.status(400).json({
+          error: "Không thêm được sản phẩm"
+        })
+      }
+      res.json(data);
+    })
+  })
+}
+
+// export const create = (req, res) => {
+//   const product = new Product(req.body);
+//   product.save((err, data) => {
+//     if (err) {
+//       res.status(400).json({
+//         error: "Add product failed",
+//       });
+//     } else {
+//       res.json(data);
+//     }
+//   });
+// };
 
 // Thiếu async await
 export const lists = async (req, res) => {
