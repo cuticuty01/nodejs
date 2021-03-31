@@ -3,13 +3,17 @@ import morgan from "morgan";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
-
-import productRouter from "./routes/product";
+import cors from "cors";
+import ProductRoutes from "./routes/product";
+import CategoryRoutes from "./routes/category";
 
 //config
+
 const app = express();
+app.use(cors());
 dotenv.config();
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 //collection
 mongoose
@@ -26,7 +30,8 @@ mongoose.connection.on("Error", (err) => {
 });
 
 // router
-app.use("/api", productRouter);
+app.use("/api", ProductRoutes);
+app.use("/api", CategoryRoutes);
 
 // app.use(morgan("dev"));
 const port = process.env.PORT || 8000;
